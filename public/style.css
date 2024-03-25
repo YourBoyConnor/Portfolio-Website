@@ -1,8 +1,8 @@
 /* UTILITIES */
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 h1 {
@@ -60,6 +60,13 @@ a {
 
 li {
     list-style: none;
+}
+
+section {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    min-height: 100vh;
 }
 
 /* NAVBAR STYLING STARTS */
