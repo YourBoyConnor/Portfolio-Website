@@ -4,7 +4,16 @@
   "description": "My personal website.",
   "main": "public/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "live-server public --port=3000 --open=/",
+    "start": "npm run dev",
+    "build": "npm run build:firebase",
+    "build:firebase": "firebase deploy --only hosting",
+    "build:local": "echo 'Static site - no build step needed. Files are ready in public/ directory.'",
+    "test": "echo 'No tests configured yet'",
+    "firebase:emulators": "firebase emulators:start --only hosting",
+    "firebase:serve": "firebase serve --only hosting",
+    "lint": "echo 'No linting configured yet'",
+    "clean": "echo 'No clean step needed for static site'"
   },
   "repository": {
     "type": "git",
@@ -15,5 +24,27 @@
   "bugs": {
     "url": "https://github.com/YourBoyConnor/Portfolio-Website/issues"
   },
-  "homepage": "https://github.com/YourBoyConnor/Portfolio-Website#readme"
+  "homepage": "https://github.com/YourBoyConnor/Portfolio-Website#readme",
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "firebase-tools": "^13.0.0"
+  },
+  "scripts": {
+    "dev": "live-server public --port=3000 --open=/",
+    "start": "npm run dev",
+    "build": "npm run build:firebase",
+    "build:firebase": "firebase deploy --only hosting",
+    "build:local": "echo 'Static site - no build step needed. Files are ready in public/ directory.'",
+    "test": "echo 'No tests configured yet'",
+    "firebase:emulators": "firebase emulators:start --only hosting",
+    "firebase:emulators:full": "firebase emulators:start",
+    "firebase:serve": "firebase serve --only hosting",
+    "functions:install": "cd functions && npm install",
+    "functions:build": "cd functions && npm run build",
+    "functions:serve": "cd functions && npm run serve",
+    "functions:deploy": "cd functions && npm run deploy",
+    "deploy:all": "firebase deploy",
+    "lint": "echo 'No linting configured yet'",
+    "clean": "echo 'No clean step needed for static site'"
+  }
 }
