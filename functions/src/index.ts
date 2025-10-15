@@ -20,6 +20,7 @@ const corsHandler = cors({ origin: true });
 // Function to verify reCAPTCHA token
 async function verifyRecaptcha(token: string, secretKey: string): Promise<boolean> {
   try {
+    console.log('Verifying reCAPTCHA token...');
     const response = await axios.post('https://www.google.com/recaptcha/api/siteverify', null, {
       params: {
         secret: secretKey,
@@ -27,6 +28,7 @@ async function verifyRecaptcha(token: string, secretKey: string): Promise<boolea
       }
     });
     
+    console.log('reCAPTCHA verification response:', response.data);
     return response.data.success === true;
   } catch (error) {
     console.error('reCAPTCHA verification error:', error);
@@ -72,10 +74,13 @@ export const contactForm = onRequest({
       }
 
       // Verify reCAPTCHA token
+      console.log('Attempting to verify reCAPTCHA token...');
       const isRecaptchaValid = await verifyRecaptcha(recaptchaToken, recaptchaSecret.value());
       if (!isRecaptchaValid) {
+        console.log('reCAPTCHA verification failed');
         return res.status(400).json({ error: 'reCAPTCHA verification failed' });
       }
+      console.log('reCAPTCHA verification successful');
 
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

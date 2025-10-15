@@ -19,12 +19,14 @@ const corsHandler = cors({ origin: true });
 // Function to verify reCAPTCHA token
 async function verifyRecaptcha(token, secretKey) {
     try {
+        console.log('Verifying reCAPTCHA token...');
         const response = await axios_1.default.post('https://www.google.com/recaptcha/api/siteverify', null, {
             params: {
                 secret: secretKey,
                 response: token
             }
         });
+        console.log('reCAPTCHA verification response:', response.data);
         return response.data.success === true;
     }
     catch (error) {
@@ -65,10 +67,13 @@ exports.contactForm = (0, https_1.onRequest)({
                 return res.status(400).json({ error: 'reCAPTCHA verification required' });
             }
             // Verify reCAPTCHA token
+            console.log('Attempting to verify reCAPTCHA token...');
             const isRecaptchaValid = await verifyRecaptcha(recaptchaToken, recaptchaSecret.value());
             if (!isRecaptchaValid) {
+                console.log('reCAPTCHA verification failed');
                 return res.status(400).json({ error: 'reCAPTCHA verification failed' });
             }
+            console.log('reCAPTCHA verification successful');
             // Validate email format
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
