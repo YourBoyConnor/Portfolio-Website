@@ -615,22 +615,60 @@ window.addEventListener('scroll', updateNavbarOnScroll);
 // Contact Form Handler
 const contactForm = document.querySelector('.contact-form');
 if (contactForm) {
-  // Add visual feedback when reCAPTCHA is completed
-  const recaptchaContainer = contactForm.querySelector('.g-recaptcha');
-  if (recaptchaContainer) {
-    // Check reCAPTCHA status periodically
-    const checkRecaptchaStatus = () => {
-      const recaptchaResponse = grecaptcha.getResponse();
-      if (recaptchaResponse) {
-        recaptchaContainer.classList.add('recaptcha-completed');
-      } else {
-        recaptchaContainer.classList.remove('recaptcha-completed');
+  // Check if reCAPTCHA is loaded
+  const checkRecaptchaLoaded = () => {
+    if (typeof grecaptcha === 'undefined') {
+      console.error('reCAPTCHA failed to load. This might be due to:');
+      console.error('1. Ad blocker blocking Google scripts');
+      console.error('2. Network/firewall blocking Google domains');
+      console.error('3. Browser extension blocking the script');
+      console.error('4. Invalid reCAPTCHA site key');
+      
+      // Show user-friendly error message
+      const recaptchaContainer = contactForm.querySelector('.g-recaptcha');
+      if (recaptchaContainer) {
+        recaptchaContainer.innerHTML = `
+          <div style="
+            padding: 1rem;
+            background: #2a2a2a;
+            border: 1px solid #ff6b6b;
+            border-radius: 8px;
+            color: #ff6b6b;
+            text-align: center;
+            font-size: 0.9rem;
+          ">
+            ⚠️ reCAPTCHA failed to load. Please disable ad blockers or check your network settings.
+          </div>
+        `;
       }
-    };
+      return false;
+    }
+    return true;
+  };
+
+  // Check if reCAPTCHA is loaded after a short delay
+  setTimeout(() => {
+    if (!checkRecaptchaLoaded()) {
+      return;
+    }
     
-    // Check every 500ms
-    setInterval(checkRecaptchaStatus, 500);
-  }
+    // Add visual feedback when reCAPTCHA is completed
+    const recaptchaContainer = contactForm.querySelector('.g-recaptcha');
+    if (recaptchaContainer) {
+      // Check reCAPTCHA status periodically
+      const checkRecaptchaStatus = () => {
+        const recaptchaResponse = grecaptcha.getResponse();
+        if (recaptchaResponse) {
+          recaptchaContainer.classList.add('recaptcha-completed');
+        } else {
+          recaptchaContainer.classList.remove('recaptcha-completed');
+        }
+      };
+      
+      // Check every 500ms
+      setInterval(checkRecaptchaStatus, 500);
+    }
+  }, 2000); // Wait 2 seconds for reCAPTCHA to load
 
   contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -638,7 +676,12 @@ if (contactForm) {
     const submitButton = contactForm.querySelector('button[type="submit"]');
     const originalText = submitButton.textContent;
     
-    // Check if reCAPTCHA is completed
+    // Check if reCAPTCHA is available and completed
+    if (typeof grecaptcha === 'undefined') {
+      showNotification('reCAPTCHA is not available. Please disable ad blockers and refresh the page.', 'error');
+      return;
+    }
+    
     const recaptchaResponse = grecaptcha.getResponse();
     if (!recaptchaResponse) {
       showNotification('Please complete the reCAPTCHA verification.', 'error');
@@ -674,18 +717,24 @@ if (contactForm) {
         showNotification('Message sent successfully! I\'ll get back to you soon.', 'success');
         contactForm.reset();
         // Reset reCAPTCHA
-        grecaptcha.reset();
+        if (typeof grecaptcha !== 'undefined') {
+          grecaptcha.reset();
+        }
       } else {
         // Error
         showNotification(result.error || 'Failed to send message. Please try again.', 'error');
         // Reset reCAPTCHA on error
-        grecaptcha.reset();
+        if (typeof grecaptcha !== 'undefined') {
+          grecaptcha.reset();
+        }
       }
     } catch (error) {
       console.error('Error sending message:', error);
       showNotification('Network error. Please check your connection and try again.', 'error');
       // Reset reCAPTCHA on error
-      grecaptcha.reset();
+      if (typeof grecaptcha !== 'undefined') {
+        grecaptcha.reset();
+      }
     } finally {
       // Reset button
       submitButton.textContent = originalText;
