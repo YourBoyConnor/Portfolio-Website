@@ -4,10 +4,12 @@ import { getFirestore } from 'firebase-admin/firestore';
 import * as nodemailer from 'nodemailer';
 import * as cors from 'cors';
 import { defineSecret } from 'firebase-functions/params';
+import axios from 'axios';
 
 // Define secrets
 const gmailUser = defineSecret('GMAIL_USER');
 const gmailPassword = defineSecret('GMAIL_APP_PASSWORD');
+const recaptchaSecret = defineSecret('RECAPTCHA_SECRET_KEY');
 
 // Initialize Firebase Admin
 initializeApp();
@@ -15,12 +17,29 @@ initializeApp();
 // CORS middleware
 const corsHandler = cors({ origin: true });
 
+// Function to verify reCAPTCHA token
+async function verifyRecaptcha(token: string, secretKey: string): Promise<boolean> {
+  try {
+    const response = await axios.post('https://www.google.com/recaptcha/api/siteverify', null, {
+      params: {
+        secret: secretKey,
+        response: token
+      }
+    });
+    
+    return response.data.success === true;
+  } catch (error) {
+    console.error('reCAPTCHA verification error:', error);
+    return false;
+  }
+}
+
 // Contact form handler
 export const contactForm = onRequest({
   memory: '256MiB',
   timeoutSeconds: 60,
   cors: true,
-  secrets: [gmailUser, gmailPassword]
+  secrets: [gmailUser, gmailPassword, recaptchaSecret]
 }, async (req, res) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -37,7 +56,7 @@ export const contactForm = onRequest({
     }
 
     try {
-      const { name, email, subject, message } = req.body;
+      const { name, email, subject, message, recaptchaToken } = req.body;
 
       // Validate required fields
       if (!name || !email || !subject || !message) {
@@ -45,6 +64,17 @@ export const contactForm = onRequest({
           error: 'Missing required fields',
           required: ['name', 'email', 'subject', 'message']
         });
+      }
+
+      // Validate reCAPTCHA token
+      if (!recaptchaToken) {
+        return res.status(400).json({ error: 'reCAPTCHA verification required' });
+      }
+
+      // Verify reCAPTCHA token
+      const isRecaptchaValid = await verifyRecaptcha(recaptchaToken, recaptchaSecret.value());
+      if (!isRecaptchaValid) {
+        return res.status(400).json({ error: 'reCAPTCHA verification failed' });
       }
 
       // Validate email format

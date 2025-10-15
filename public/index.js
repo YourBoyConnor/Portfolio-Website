@@ -615,11 +615,35 @@ window.addEventListener('scroll', updateNavbarOnScroll);
 // Contact Form Handler
 const contactForm = document.querySelector('.contact-form');
 if (contactForm) {
+  // Add visual feedback when reCAPTCHA is completed
+  const recaptchaContainer = contactForm.querySelector('.g-recaptcha');
+  if (recaptchaContainer) {
+    // Check reCAPTCHA status periodically
+    const checkRecaptchaStatus = () => {
+      const recaptchaResponse = grecaptcha.getResponse();
+      if (recaptchaResponse) {
+        recaptchaContainer.classList.add('recaptcha-completed');
+      } else {
+        recaptchaContainer.classList.remove('recaptcha-completed');
+      }
+    };
+    
+    // Check every 500ms
+    setInterval(checkRecaptchaStatus, 500);
+  }
+
   contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const submitButton = contactForm.querySelector('button[type="submit"]');
     const originalText = submitButton.textContent;
+    
+    // Check if reCAPTCHA is completed
+    const recaptchaResponse = grecaptcha.getResponse();
+    if (!recaptchaResponse) {
+      showNotification('Please complete the reCAPTCHA verification.', 'error');
+      return;
+    }
     
     // Show loading state
     submitButton.textContent = 'Sending...';
@@ -631,7 +655,8 @@ if (contactForm) {
         name: formData.get('name'),
         email: formData.get('email'),
         subject: formData.get('subject'),
-        message: formData.get('message')
+        message: formData.get('message'),
+        recaptchaToken: recaptchaResponse
       };
       
       const response = await fetch('/api/contact', {
@@ -648,13 +673,19 @@ if (contactForm) {
         // Success
         showNotification('Message sent successfully! I\'ll get back to you soon.', 'success');
         contactForm.reset();
+        // Reset reCAPTCHA
+        grecaptcha.reset();
       } else {
         // Error
         showNotification(result.error || 'Failed to send message. Please try again.', 'error');
+        // Reset reCAPTCHA on error
+        grecaptcha.reset();
       }
     } catch (error) {
       console.error('Error sending message:', error);
       showNotification('Network error. Please check your connection and try again.', 'error');
+      // Reset reCAPTCHA on error
+      grecaptcha.reset();
     } finally {
       // Reset button
       submitButton.textContent = originalText;

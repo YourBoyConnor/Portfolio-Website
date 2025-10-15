@@ -1514,6 +1514,88 @@ section {
     margin-bottom: 1.5rem;
 }
 
+/* reCAPTCHA styling */
+.g-recaptcha {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: #131316;
+    border: 1px solid rgba(164, 215, 188, 0.2);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.g-recaptcha::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(164, 215, 188, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.g-recaptcha:hover {
+    border-color: rgba(164, 215, 188, 0.4);
+    box-shadow: 0 0 0 1px rgba(164, 215, 188, 0.1);
+}
+
+.g-recaptcha:hover::before {
+    left: 100%;
+}
+
+.g-recaptcha > div {
+    transform: scale(0.95);
+    transform-origin: center;
+    filter: brightness(1.1) contrast(1.1);
+    position: relative;
+    z-index: 1;
+}
+
+/* Dark theme for reCAPTCHA iframe */
+.g-recaptcha iframe {
+    border-radius: 4px;
+    border: none;
+}
+
+/* Style the reCAPTCHA checkbox area */
+.g-recaptcha .recaptcha-checkbox {
+    border-radius: 4px;
+}
+
+/* Custom styling for the reCAPTCHA text */
+.g-recaptcha .recaptcha-checkbox-label {
+    color: #ccc;
+    font-family: inherit;
+}
+
+/* Add a subtle glow effect when reCAPTCHA is completed */
+.g-recaptcha.recaptcha-completed {
+    border-color: rgba(164, 215, 188, 0.6);
+    box-shadow: 0 0 10px rgba(164, 215, 188, 0.2);
+}
+
+@media (max-width: 768px) {
+    .g-recaptcha {
+        padding: 0.75rem;
+        margin: 1rem 0;
+    }
+    
+    .g-recaptcha > div {
+        transform: scale(0.85);
+    }
+}
+
+@media (max-width: 480px) {
+    .g-recaptcha > div {
+        transform: scale(0.75);
+    }
+}
+
 .form-group input,
 .form-group textarea {
     width: 100%;

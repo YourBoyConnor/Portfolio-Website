@@ -7,19 +7,37 @@ const firestore_1 = require("firebase-admin/firestore");
 const nodemailer = require("nodemailer");
 const cors = require("cors");
 const params_1 = require("firebase-functions/params");
+const axios_1 = require("axios");
 // Define secrets
 const gmailUser = (0, params_1.defineSecret)('GMAIL_USER');
 const gmailPassword = (0, params_1.defineSecret)('GMAIL_APP_PASSWORD');
+const recaptchaSecret = (0, params_1.defineSecret)('RECAPTCHA_SECRET_KEY');
 // Initialize Firebase Admin
 (0, app_1.initializeApp)();
 // CORS middleware
 const corsHandler = cors({ origin: true });
+// Function to verify reCAPTCHA token
+async function verifyRecaptcha(token, secretKey) {
+    try {
+        const response = await axios_1.default.post('https://www.google.com/recaptcha/api/siteverify', null, {
+            params: {
+                secret: secretKey,
+                response: token
+            }
+        });
+        return response.data.success === true;
+    }
+    catch (error) {
+        console.error('reCAPTCHA verification error:', error);
+        return false;
+    }
+}
 // Contact form handler
 exports.contactForm = (0, https_1.onRequest)({
     memory: '256MiB',
     timeoutSeconds: 60,
     cors: true,
-    secrets: [gmailUser, gmailPassword]
+    secrets: [gmailUser, gmailPassword, recaptchaSecret]
 }, async (req, res) => {
     // Handle CORS preflight
     if (req.method === 'OPTIONS') {
@@ -34,13 +52,22 @@ exports.contactForm = (0, https_1.onRequest)({
             return res.status(405).json({ error: 'Method not allowed' });
         }
         try {
-            const { name, email, subject, message } = req.body;
+            const { name, email, subject, message, recaptchaToken } = req.body;
             // Validate required fields
             if (!name || !email || !subject || !message) {
                 return res.status(400).json({
                     error: 'Missing required fields',
                     required: ['name', 'email', 'subject', 'message']
                 });
+            }
+            // Validate reCAPTCHA token
+            if (!recaptchaToken) {
+                return res.status(400).json({ error: 'reCAPTCHA verification required' });
+            }
+            // Verify reCAPTCHA token
+            const isRecaptchaValid = await verifyRecaptcha(recaptchaToken, recaptchaSecret.value());
+            if (!isRecaptchaValid) {
+                return res.status(400).json({ error: 'reCAPTCHA verification failed' });
             }
             // Validate email format
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
