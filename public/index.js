@@ -436,29 +436,7 @@ class FirstViewAnimations {
 // Initialize first view animations
 const firstViewAnimations = new FirstViewAnimations();
 
-// Project filtering functionality
-const filterButtons = document.querySelectorAll('.filter-btn');
-const projectCards = document.querySelectorAll('.project-card');
-
-filterButtons.forEach(button => {
-  button.addEventListener('click', () => {
-    // Remove active class from all buttons
-    filterButtons.forEach(btn => btn.classList.remove('active'));
-    // Add active class to clicked button
-    button.classList.add('active');
-    
-    const filter = button.getAttribute('data-filter');
-    
-    projectCards.forEach(card => {
-      if (filter === 'all' || card.getAttribute('data-category') === filter) {
-        card.style.display = 'block';
-        card.style.animation = 'fadeIn 0.5s ease-in-out';
-      } else {
-        card.style.display = 'none';
-      }
-    });
-  });
-});
+// Project filtering functionality - moved to initProjectFiltering() function
 
 
 // Parallax scrolling effect
@@ -502,26 +480,85 @@ document.querySelectorAll('.skill-item').forEach(item => {
   });
 });
 
-// Project cards 3D tilt effect
-document.querySelectorAll('.project-card').forEach(card => {
-  card.addEventListener('mousemove', (e) => {
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+// Project cards 3D tilt effect - Steam trading card style (desktop only)
+function initProjectCardEffects() {
+  // Check if device supports hover (desktop)
+  const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  
+  if (!isDesktop) {
+    // Mobile devices - disable 3D effects for better performance
+    return;
+  }
+  
+  document.querySelectorAll('.project-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      // More aggressive rotation for immediate response like Steam cards
+      const rotateX = (y - centerY) / 4; // Increased from /10 to /4
+      const rotateY = (centerX - x) / 4; // Increased from /10 to /4
+      
+      // Immediate transform without transition delay
+      card.style.transition = 'none';
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px) scale(1.02)`;
+    });
     
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    
-    const rotateX = (y - centerY) / 10;
-    const rotateY = (centerX - x) / 10;
-    
-    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
+    card.addEventListener('mouseleave', () => {
+      // Smooth return to original position
+      card.style.transition = 'transform 0.3s ease-out';
+      card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0) scale(1)';
+    });
+  });
+}
+
+// Initialize project card effects
+initProjectCardEffects();
+
+// Re-initialize on window resize (in case of device rotation)
+window.addEventListener('resize', () => {
+  // Remove existing event listeners by re-querying
+  document.querySelectorAll('.project-card').forEach(card => {
+    card.replaceWith(card.cloneNode(true));
   });
   
-  card.addEventListener('mouseleave', () => {
-    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
-  });
+  // Re-initialize both 3D effects and filtering
+  initProjectCardEffects();
+  initProjectFiltering();
 });
+
+// Initialize project filtering functionality
+function initProjectFiltering() {
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const projectCards = document.querySelectorAll('.project-card');
+
+  filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      // Remove active class from all buttons
+      filterButtons.forEach(btn => btn.classList.remove('active'));
+      // Add active class to clicked button
+      button.classList.add('active');
+      
+      const filter = button.getAttribute('data-filter');
+      
+      projectCards.forEach(card => {
+        if (filter === 'all' || card.getAttribute('data-category') === filter) {
+          card.style.display = 'block';
+          card.style.animation = 'fadeIn 0.5s ease-in-out';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
+}
+
+// Initialize filtering on page load
+initProjectFiltering();
 
 // Loading animation
 window.addEventListener('load', () => {

@@ -936,6 +936,40 @@ section {
     overflow-x: hidden;
 }
 
+/* Allow glow effects in projects section */
+.projects-section .container {
+    overflow: visible;
+    padding: 0 clamp(1rem, 3vw, 2rem);
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Medium screen container adjustments */
+@media (min-width: 601px) and (max-width: 1200px) {
+    .projects-section .container {
+        padding: 0 1.5rem;
+    }
+}
+
+/* Mobile container adjustments */
+@media (max-width: 600px) {
+    .projects-section .container {
+        padding: 0 0.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Center container content */
+    }
+}
+
+@media (max-width: 480px) {
+    .projects-section .container {
+        padding: 0 0.25rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Center container content */
+    }
+}
+
 /* Content wrapper for consistent width alignment */
 .content-wrapper {
     max-width: 1200px;
@@ -943,12 +977,30 @@ section {
     width: 100%;
     box-sizing: border-box;
     padding: 0 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content */
 }
 
 /* Override for hero section to maintain full viewport */
 .hero-section .content-wrapper {
     max-width: 100%;
     padding: 0;
+}
+
+/* Mobile content wrapper adjustments */
+@media (max-width: 600px) {
+    .content-wrapper {
+        padding: 0 1rem;
+        align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .content-wrapper {
+        padding: 0 0.5rem;
+        align-items: center;
+    }
 }
 
 /* Section Titles */
@@ -1232,27 +1284,42 @@ section {
 
 /* Projects Section */
 .projects-section {
-    padding: 100px 0;
+    padding: 100px 0 150px 0; /* Add extra bottom padding for glow */
     background: #131316;
+    /* Allow glow effects to show */
+    overflow: visible;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
 }
 
 .project-filters {
     display: flex;
     justify-content: center;
-    gap: 1rem;
-    margin-bottom: 3rem;
+    gap: clamp(0.5rem, 2vw, 1.5rem);
+    margin-bottom: clamp(2rem, 5vw, 3rem);
     flex-wrap: wrap;
+    padding: 0 clamp(1rem, 3vw, 2rem);
+    transition: all 0.3s ease;
 }
 
 .filter-btn {
-    padding: 10px 20px;
+    padding: clamp(0.5rem, 2vw, 0.8rem) clamp(1rem, 3vw, 1.5rem);
     background: transparent;
     color: #A4D7BC;
     border: 2px solid #A4D7BC;
     border-radius: 25px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 600;
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    min-width: clamp(60px, 15vw, 120px);
+    white-space: nowrap;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
 }
 
 .filter-btn.active,
@@ -1263,20 +1330,42 @@ section {
 
 .projects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+    gap: clamp(1rem, 3vw, 2rem);
     max-width: 1200px;
     margin: 0 auto;
+    justify-content: center;
+    /* Allow glow effects to show */
+    overflow: visible;
+    padding: clamp(20px, 4vw, 40px) clamp(1rem, 2vw, 2rem);
+    /* Smooth transitions for responsive changes */
+    transition: all 0.3s ease;
+    /* Ensure grid doesn't overflow */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .project-card {
     background: #1a1a1d;
     border-radius: 15px;
     overflow: hidden;
-    transition: transform 0.2s ease-out, box-shadow 0.3s ease, border-color 0.3s ease;
+    transition: all 0.3s ease;
     border: 1px solid rgba(164, 215, 188, 0.1);
     position: relative;
     transform-style: preserve-3d;
+    /* Responsive sizing with proper constraints */
+    width: 100%;
+    min-width: 280px;
+    max-width: 320px;
+    height: clamp(350px, 45vw, 420px);
+    display: flex;
+    flex-direction: column;
+    /* Enable 3D perspective */
+    perspective: 1000px;
+    /* Smooth responsive transitions */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Ensure cards don't overflow */
+    box-sizing: border-box;
 }
 
 .project-card::before {
@@ -1294,7 +1383,7 @@ section {
 }
 
 .project-card:hover {
-    transform: rotateY(5deg) rotateX(5deg);
+    /* Remove fixed rotation - let JavaScript handle it */
     box-shadow: 
         0 25px 50px rgba(164, 215, 188, 0.3),
         0 0 0 1px rgba(164, 215, 188, 0.2),
@@ -1307,11 +1396,12 @@ section {
 }
 
 .project-image {
-    height: 200px;
+    height: clamp(150px, 25vw, 250px);
     background: linear-gradient(135deg, #A4D7BC, #75BA95);
     position: relative;
     overflow: hidden;
     transition: transform 0.2s ease-out;
+    flex-shrink: 0;
 }
 
 .project-card:hover .project-image {
@@ -1378,34 +1468,50 @@ section {
 }
 
 .project-info {
-    padding: 1.5rem;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 0; /* Allow flex shrinking */
 }
 
 .project-info h3 {
     color: #fff;
     margin-bottom: 0.5rem;
-    font-size: 1.2rem;
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    line-height: 1.3;
 }
 
 .project-info p {
     color: #ccc;
     margin-bottom: 1rem;
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    line-height: 1.4;
+    flex: 1;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
 }
 
 .project-tech {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+    margin-top: auto;
 }
 
 .tech-tag {
     background: rgba(164, 215, 188, 0.2);
     color: #A4D7BC;
-    padding: 4px 12px;
+    padding: clamp(0.2rem, 1vw, 0.4rem) clamp(0.4rem, 1.5vw, 0.8rem);
     border-radius: 15px;
-    font-size: 0.8rem;
+    font-size: clamp(0.65rem, 1.8vw, 0.9rem);
     font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s ease;
 }
 
 /* Experience Section */
@@ -1740,6 +1846,20 @@ section {
         font-size: 16px; /* Prevents zoom on iOS */
         padding: 14px 16px;
     }
+    
+    /* Projects Section - Mobile optimizations */
+    .project-card {
+        /* Disable 3D effects on mobile for better performance */
+        transform: none !important;
+        transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    
+    .project-card:hover {
+        transform: none !important;
+        box-shadow: 
+            0 15px 30px rgba(164, 215, 188, 0.2),
+            0 0 0 1px rgba(164, 215, 188, 0.2);
+    }
 }
 
 @media (max-width: 480px) {
@@ -1837,6 +1957,8 @@ section {
     .contact-info p {
         font-size: 0.9rem;
     }
+    
+    /* Projects Section - Mobile optimizations already handled above */
 }
 
 .form-group input,
@@ -2122,9 +2244,16 @@ section {
     }
     
     .projects-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(auto-fit, 250px);
         gap: 1.5rem;
-        padding: 0 1rem;
+        padding: 20px 1rem; /* Add top/bottom padding for glow */
+        overflow: visible;
+        justify-content: center;
+    }
+    
+    .project-card {
+        width: 250px;
+        height: 380px;
     }
     
     .skills-grid {
@@ -2145,25 +2274,49 @@ section {
     }
 }
 
-/* Tablet responsive grid */
-@media (max-width: 1024px) and (min-width: 769px) {
-    .projects-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1.5rem;
-    }
-}
+/* Tablet responsive - handled by main responsive system */
 
-/* Small mobile responsive grid */
-@media (max-width: 480px) {
+/* Responsive adjustments for medium screens (600px-1200px) */
+@media (min-width: 601px) and (max-width: 1200px) {
     .projects-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        padding: 0 0.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 300px));
+        max-width: 900px;
+        gap: 1.5rem;
     }
     
     .project-card {
-        margin: 0 auto;
+        max-width: 300px;
+        height: 400px;
+    }
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+    .projects-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto; /* Ensure proper centering */
+        justify-items: center; /* Center grid items */
+    }
+    
+    .project-card {
         max-width: 100%;
+        width: 100%;
+        justify-self: center; /* Center individual cards */
+    }
+    
+    .project-filters {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .filter-btn {
+        flex: 1;
+        min-width: 0;
+        max-width: 120px;
+        white-space: normal; /* Allow text wrapping on small screens */
+        line-height: 1.2;
+        min-height: 44px; /* Ensure touch-friendly height */
     }
 }
 
@@ -2213,5 +2366,49 @@ section {
     
     .skills-grid {
         grid-template-columns: 1fr;
+    }
+    
+    /* Projects Section - Very small screen filter adjustments */
+    .project-filters {
+        gap: 0.3rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-btn {
+        font-size: 0.7rem;
+        padding: 0.4rem 0.6rem;
+        min-height: 36px;
+        white-space: normal;
+        line-height: 1.1;
+        flex: 1;
+        min-width: 0;
+        max-width: 80px;
+    }
+    
+    /* Projects Section - Responsive system handles all sizing */
+}
+
+/* Extra small mobile - handle filter text overflow */
+@media (max-width: 400px) {
+    .project-filters {
+        gap: 0.25rem;
+        margin-bottom: 1.25rem;
+        padding: 0 0.5rem;
+    }
+    
+    .filter-btn {
+        font-size: 0.65rem;
+        padding: 0.3rem 0.5rem;
+        min-height: 32px;
+        white-space: normal;
+        line-height: 1.1;
+        flex: 1;
+        min-width: 0;
+        max-width: 70px;
+        border-radius: 20px;
+    }
+    
+    .projects-grid {
+        padding: 15px 0.5rem;
     }
 }
