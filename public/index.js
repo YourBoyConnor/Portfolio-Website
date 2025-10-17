@@ -75,7 +75,22 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 });
 
 // Enhanced typing animation for hero section
+let isTyping = false;
+let typingTimeout = null;
+
 function typeWriter(element, text, speed = 80, isReplay = false) {
+  // Prevent multiple simultaneous typing animations
+  if (isTyping) {
+    return;
+  }
+  
+  isTyping = true;
+  
+  // Clear any existing typing timeout
+  if (typingTimeout) {
+    clearTimeout(typingTimeout);
+  }
+  
   let i = 0;
   
   // Add fade effect for replay
@@ -92,7 +107,7 @@ function typeWriter(element, text, speed = 80, isReplay = false) {
   element.innerHTML = '';
   
   // Add a slight delay before starting
-  setTimeout(() => {
+  typingTimeout = setTimeout(() => {
     function type() {
       if (i < text.length) {
         // Simply add characters without spans to avoid cursor issues
@@ -101,10 +116,14 @@ function typeWriter(element, text, speed = 80, isReplay = false) {
         
         // Vary the speed slightly for more natural typing
         const randomDelay = speed + (Math.random() * 40 - 20);
-        setTimeout(type, randomDelay);
+        typingTimeout = setTimeout(type, randomDelay);
       } else {
         // Add a subtle completion effect
         element.style.animation = 'typewriterComplete 0.5s ease-out';
+        // Reset typing state after animation completes
+        setTimeout(() => {
+          isTyping = false;
+        }, 500);
       }
     }
     
@@ -544,9 +563,16 @@ window.addEventListener('scroll', updateScrollProgress);
 // Navbar logo click animation
 const navLogo = document.querySelector('.nav-logo');
 const logoContainer = document.querySelector('.logo-container');
+let logoClickTimeout = null;
 
 function handleLogoClick(e) {
   e.preventDefault();
+  
+  // Debounce rapid clicks
+  if (logoClickTimeout) {
+    clearTimeout(logoClickTimeout);
+  }
+  
   const logo = navLogo.querySelector('.logo');
   if (logo) {
     logo.style.transform = 'scale(1.2)';
@@ -558,8 +584,8 @@ function handleLogoClick(e) {
   // Scroll to top of page
   window.scrollTo({ top: 0, behavior: 'smooth' });
   
-  // Replay typing animation after scroll completes
-  setTimeout(() => {
+  // Replay typing animation after scroll completes (with debounce)
+  logoClickTimeout = setTimeout(() => {
     const typingElement = document.getElementById('typing-text');
     if (typingElement) {
       const text = typingElement.textContent;
