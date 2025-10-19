@@ -546,7 +546,8 @@ function initProjectFiltering() {
       const filter = button.getAttribute('data-filter');
       
       projectCards.forEach(card => {
-        if (filter === 'all' || card.getAttribute('data-category') === filter) {
+        const cardCategories = card.getAttribute('data-category').split(' ');
+        if (filter === 'all' || cardCategories.includes(filter)) {
           // Show card - restore to grid and animate in
           card.style.display = 'block';
           card.style.visibility = 'visible';
