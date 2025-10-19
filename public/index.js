@@ -547,10 +547,30 @@ function initProjectFiltering() {
       
       projectCards.forEach(card => {
         if (filter === 'all' || card.getAttribute('data-category') === filter) {
+          // Show card - restore to grid and animate in
           card.style.display = 'block';
-          card.style.animation = 'fadeIn 0.5s ease-in-out';
+          card.style.visibility = 'visible';
+          card.style.position = 'static';
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(20px)';
+          
+          // Animate in smoothly
+          requestAnimationFrame(() => {
+            card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+          });
         } else {
-          card.style.display = 'none';
+          // Hide card - remove from grid immediately but fade out smoothly
+          card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(-10px)';
+          
+          // Remove from grid layout immediately to prevent snap
+          card.style.visibility = 'hidden';
+          card.style.position = 'absolute';
+          card.style.top = '-9999px';
+          card.style.left = '-9999px';
         }
       });
     });
